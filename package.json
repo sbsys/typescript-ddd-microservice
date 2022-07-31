@@ -40,6 +40,7 @@
         "pg-hstore": "^2.3.4",
         "reflect-metadata": "^0.1.13",
         "sequelize": "^6.21.3",
+        "underscore": "^1.13.4",
         "winston": "^3.8.1"
     },
     "devDependencies": {
@@ -51,6 +52,7 @@
         "@types/morgan": "^1.9.3",
         "@types/node": "^18.0.6",
         "@types/node-emoji": "^1.8.1",
+        "@types/underscore": "^1.11.4",
         "@typescript-eslint/eslint-plugin": "^5.30.7",
         "@typescript-eslint/parser": "^5.30.7",
         "eslint": "^8.20.0",
