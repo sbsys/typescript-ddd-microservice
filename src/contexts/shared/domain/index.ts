@@ -6,4 +6,5 @@ export * from './Entity';
 export * from './DomainEvent';
 export * from './DomainEvents';
 export * from './AggregateRoot';
+export * from './Result';
 export * from './Repository';
