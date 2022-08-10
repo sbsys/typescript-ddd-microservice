@@ -1,3 +1,3 @@
 /* import/export */
 export * from './UseCase';
-export * from './Handle';
+export * from './DomainEventHandler';

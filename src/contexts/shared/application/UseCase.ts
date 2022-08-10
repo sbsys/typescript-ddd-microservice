@@ -1,3 +1,5 @@
-export interface UseCase<Request, Response> {
-    execute(request?: Request): Promise<Response> | Response;
+import { Either } from '../domain';
+
+export interface UseCase<R, E, S> {
+    execute(request?: R): Promise<Either<E, S>> | Either<E, S>;
 }
