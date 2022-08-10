@@ -1,14 +1,24 @@
 import { Either, Result } from './Result';
 import { UniqueEntityID } from './UniqueEntityID';
 
-export interface Repository<E, R> {
-    create(props: R): Promise<Either<E, Result<void>>>;
+interface Paginate {
+    page: number;
+    pp: number;
+}
 
-    readById(id: UniqueEntityID): Promise<Either<E, Result<R>>>;
+interface Page<T> extends Paginate {
+    total: number;
+    data: T[];
+}
 
-    readAll(page: number, pp: number): Promise<Either<E, Result<R[]>>>;
+export interface Repository<E, S> {
+    create(props: S): Promise<Either<E, Result<void>>>;
 
-    updateById(id: UniqueEntityID, props: R): Promise<Either<E, Result<void>>>;
+    readById(id: UniqueEntityID): Promise<Either<E, Result<S>>>;
+
+    readAll<Q>(paginate: Paginate, query?: Q): Promise<Either<E, Result<Page<S>>>>;
+
+    updateById(id: UniqueEntityID, props: S): Promise<Either<E, Result<void>>>;
 
     deleteById(id: UniqueEntityID): Promise<Either<E, Result<void>>>;
 }
