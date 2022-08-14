@@ -1,6 +1,6 @@
 import { UniqueEntityID } from './UniqueEntityID';
 
-export interface DomainEvent<T> {
+export interface DomainEvent<T = null> {
     value?: T;
     dateTimeOccurred: Date;
 

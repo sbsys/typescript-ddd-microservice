@@ -3,16 +3,10 @@ import { Result } from './Result';
 
 export type CommonErrors = 'UNEXPECTED_ERROR' | 'NOT_FOUND_ERROR';
 
-/* admitted errors */
-const ERRORS: Record<CommonErrors, string> = {
-    UNEXPECTED_ERROR: 'UNEXPECTED_ERROR',
-    NOT_FOUND_ERROR: 'NOT_FOUND_ERROR',
-};
-
-export class UnexpectedError<T> extends Result<DomainError<T>> {
+export class UnexpectedError<T> extends Result<DomainError<CommonErrors, T>> {
     constructor(error?: T) {
         super(false, {
-            message: ERRORS.UNEXPECTED_ERROR,
+            message: 'UNEXPECTED_ERROR',
             error,
         });
     }
@@ -22,10 +16,10 @@ export class UnexpectedError<T> extends Result<DomainError<T>> {
     }
 }
 
-export class NotFoundError<T> extends Result<DomainError<T>> {
+export class NotFoundError<T> extends Result<DomainError<CommonErrors, T>> {
     constructor(error?: T) {
         super(false, {
-            message: ERRORS.UNEXPECTED_ERROR,
+            message: 'NOT_FOUND_ERROR',
             error,
         });
     }
