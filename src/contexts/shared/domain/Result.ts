@@ -21,10 +21,7 @@ export class Result<T> {
     }
 
     public getValue(): T | undefined {
-        if (!this.isSuccess) {
-            console.log(this.exception);
-            throw new Error("Can't get the value of an error result. Use 'errorValue' instead.");
-        }
+        if (!this.isSuccess) throw new Error("Can't get the value of an error result. Use 'errorValue' instead.");
 
         return this._value;
     }
