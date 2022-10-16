@@ -45,44 +45,44 @@ export class Result<T> {
     }
 }
 
-export type Either<E, S> = Exception<E, S> | Success<E, S>;
+export type Either<EXCEPTION, SUCCESS> = Exception<EXCEPTION, SUCCESS> | Success<EXCEPTION, SUCCESS>;
 
-export class Exception<E, S> {
-    readonly value: E;
+export class Exception<EXCEPTION, SUCCESS> {
+    readonly value: EXCEPTION;
 
-    constructor(value: E) {
+    constructor(value: EXCEPTION) {
         this.value = value;
     }
 
-    isException(): this is Exception<E, S> {
+    isException(): this is Exception<EXCEPTION, SUCCESS> {
         return true;
     }
 
-    isSuccess(): this is Success<E, S> {
+    isSuccess(): this is Success<EXCEPTION, SUCCESS> {
         return false;
     }
 }
 
-export class Success<E, S> {
-    readonly value: S;
+export class Success<EXCEPTION, SUCCESS> {
+    readonly value: SUCCESS;
 
-    constructor(value: S) {
+    constructor(value: SUCCESS) {
         this.value = value;
     }
 
-    isException(): this is Exception<E, S> {
+    isException(): this is Exception<EXCEPTION, SUCCESS> {
         return false;
     }
 
-    isSuccess(): this is Success<E, S> {
+    isSuccess(): this is Success<EXCEPTION, SUCCESS> {
         return true;
     }
 }
 
-export const exception = <E, S>(e: E): Either<E, S> => {
+export const exception = <EXCEPTION, SUCCESS>(e: EXCEPTION): Either<EXCEPTION, SUCCESS> => {
     return new Exception(e);
 };
 
-export const success = <E, S>(s: S): Either<E, S> => {
-    return new Success<E, S>(s);
+export const success = <EXCEPTION, SUCCESS>(s: SUCCESS): Either<EXCEPTION, SUCCESS> => {
+    return new Success<EXCEPTION, SUCCESS>(s);
 };

@@ -1,7 +1,7 @@
 import { DomainEvent } from '../domain';
 
-export interface DomainEventHandler<ENTITY, DE extends DomainEvent<ENTITY>, RESPONSE> {
+export interface DomainEventHandler<ENTITY, EVENT extends DomainEvent<ENTITY>, RESPONSE = void> {
     setupSubscriptions(): void;
 
-    onEvent(event: DE): Promise<RESPONSE>;
+    onEvent(event: EVENT): Promise<RESPONSE>;
 }

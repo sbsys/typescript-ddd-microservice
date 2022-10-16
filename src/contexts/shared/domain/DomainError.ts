@@ -1,4 +1,4 @@
-export interface DomainError<M, T> {
-    message: M;
-    error?: T;
+export interface DomainError<MESSAGE, EXCEPTION> {
+    message: MESSAGE;
+    error?: EXCEPTION;
 }

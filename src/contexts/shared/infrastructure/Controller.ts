@@ -169,6 +169,6 @@ export abstract class Controller {
     }
 
     public tooManyRequests<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 429, data ? data : 'Too many requests');
+        return Controller.jsonResponse<T | string>(this.res, 429, data ?? 'Too many requests');
     }
 }

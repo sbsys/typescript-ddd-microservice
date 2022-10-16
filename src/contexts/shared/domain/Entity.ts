@@ -4,18 +4,18 @@ import { UniqueEntityID } from './UniqueEntityID';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isEntity = (v: any): v is Entity<any> => v instanceof Entity;
 
-export abstract class Entity<T> {
+export abstract class Entity<PROPS> {
     protected readonly _id: UniqueEntityID;
 
-    public readonly props: T;
+    public readonly props: PROPS;
 
-    constructor(props: T, id?: UniqueEntityID) {
+    constructor(props: PROPS, id?: UniqueEntityID) {
         this._id = id ?? new UniqueEntityID();
 
         this.props = props;
     }
 
-    public equals(object?: Entity<T>): boolean {
+    public equals(object?: Entity<PROPS>): boolean {
         if (object == null || object == undefined) return false;
 
         if (this === object) return true;
