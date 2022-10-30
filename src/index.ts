@@ -1,2 +1,4 @@
 /* import/export server */
-export * from './env';
+import './env';
+import './contexts/shared/domain';
+import './apps';

@@ -1,2 +1,2 @@
 /* import/export web api */
-export {};
+export * from './app';
