@@ -1,7 +1,10 @@
-import { Request, Response } from 'express';
+import { request, Request, response, Response } from 'express';
+import { injectable } from 'inversify';
 
+@injectable()
 export abstract class Controller {
-    constructor(protected req: Request, protected res: Response) {}
+    protected req: Request = request;
+    protected res: Response = response;
 
     protected abstract implementation(): Promise<void>;
 
@@ -12,163 +15,167 @@ export abstract class Controller {
         this.implementation();
     }
 
-    public static jsonResponse<T>(res: Response, code: number, data?: T) {
-        return res.status(code).json(data);
+    protected JSONResponse<T>(code: number, status: boolean, message: string, data?: T) {
+        this.res.status(code).json({
+            status,
+            message,
+            data,
+        });
     }
 
-    public continue<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 100, data ?? 'Continue');
+    public continue<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(100, false, message ?? 'Continue', data);
     }
 
-    public switchingProtocol<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 101, data ?? 'Switching protocol');
+    public switchingProtocol<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(101, false, message ?? 'Switching protocol', data);
     }
 
-    public processing<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 102, data ?? 'Processing');
+    public processing<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(102, false, message ?? 'Processing', data);
     }
 
-    public ok<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 200, data ?? 'Ok');
+    public ok<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(200, true, message ?? 'Ok', data);
     }
 
-    public created<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 201, data ?? 'Created');
+    public created<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(201, true, message ?? 'Created', data);
     }
 
-    public accepted<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 202, data ?? 'Accepted');
+    public accepted<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(202, true, message ?? 'Accepted', data);
     }
 
-    public nonAuthoritative<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 203, data ?? 'Non authoritative');
+    public nonAuthoritative<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(203, true, message ?? 'Non authoritative', data);
     }
 
-    public noContent<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 204, data ?? 'No content');
+    public noContent<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(204, true, message ?? 'No content', data);
     }
 
-    public resetContent<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 205, data ?? 'Reset content');
+    public resetContent<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(205, true, message ?? 'Reset content', data);
     }
 
-    public partialContent<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 206, data ?? 'Partial content');
+    public partialContent<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(206, true, message ?? 'Partial content', data);
     }
 
-    public multipleChoices<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 300, data ?? 'Multiple choices');
+    public multipleChoices<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(300, false, message ?? 'Multiple choices', data);
     }
 
-    public movedPermanently<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 301, data ?? 'Moved permanently');
+    public movedPermanently<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(301, false, message ?? 'Moved permanently', data);
     }
 
-    public found<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 302, data ?? 'Found');
+    public found<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(302, false, message ?? 'Found', data);
     }
 
-    public seeOther<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 303, data ?? 'See other');
+    public seeOther<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(303, false, message ?? 'See other', data);
     }
 
-    public notModified<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 304, data ?? 'Not modified');
+    public notModified<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(304, false, message ?? 'Not modified', data);
     }
 
-    public useProxy<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 305, data ?? 'Use proxy');
+    public useProxy<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(305, false, message ?? 'Use proxy', data);
     }
 
-    public unused<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 306, data ?? 'Unused');
+    public unused<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(306, false, message ?? 'Unused', data);
     }
 
-    public badRequest<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 400, data ?? 'Bad request');
+    public badRequest<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(400, false, message ?? 'Bad request', data);
     }
 
-    public unauthorized<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 401, data ?? 'Unauthorized');
+    public unauthorized<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(401, false, message ?? 'Unauthorized', data);
     }
 
-    public paymentRequired<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 402, data ?? 'Payment required');
+    public paymentRequired<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(402, false, message ?? 'Payment required', data);
     }
 
-    public forbidden<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 403, data ?? 'Forbidden');
+    public forbidden<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(403, false, message ?? 'Forbidden', data);
     }
 
-    public notFound<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 404, data ?? 'Not found');
+    public notFound<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(404, false, message ?? 'Not found', data);
     }
 
-    public methodNotAllowed<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 405, data ?? 'Method not allowed');
+    public methodNotAllowed<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(405, false, message ?? 'Method not allowed', data);
     }
 
-    public notAcceptable<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 406, data ?? 'Not acceptable');
+    public notAcceptable<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(406, false, message ?? 'Not acceptable', data);
     }
 
-    public proxyAuthenticatedRequired<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 407, data ?? 'Proxy authenticated required');
+    public proxyAuthenticatedRequired<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(407, false, message ?? 'Proxy authenticated required', data);
     }
 
-    public requestTimeout<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 408, data ?? 'Request timeout');
+    public requestTimeout<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(408, false, message ?? 'Request timeout', data);
     }
 
-    public conflict<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 409, data ?? 'Conflict');
+    public conflict<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(409, false, message ?? 'Conflict', data);
     }
 
-    public gone<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 410, data ?? 'Gone');
+    public gone<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(410, false, message ?? 'Gone', data);
     }
 
-    public lengthRequired<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 411, data ?? 'Length required');
+    public lengthRequired<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(411, false, message ?? 'Length required', data);
     }
 
-    public preconditionFailed<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 412, data ?? 'Precondition failed');
+    public preconditionFailed<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(412, false, message ?? 'Precondition failed', data);
     }
 
-    public requestEntityTooLarge<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 413, data ?? 'Request entity too large');
+    public requestEntityTooLarge<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(413, false, message ?? 'Request entity too large', data);
     }
 
-    public unsupportedMediaType<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 415, data ?? 'Unsupported media type');
+    public unsupportedMediaType<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(415, false, message ?? 'Unsupported media type', data);
     }
 
-    public unprocessableEntity<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 422, data ?? 'Unprocessable entity');
+    public unprocessableEntity<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(422, false, message ?? 'Unprocessable entity', data);
     }
 
-    public internalServerError<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 500, data ?? 'Internal server error');
+    public internalServerError<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(500, false, message ?? 'Internal server error', data);
     }
 
-    public notImplemented<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 501, data ?? 'Not implemented');
+    public notImplemented<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(501, false, message ?? 'Not implemented', data);
     }
 
-    public badGateway<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 502, data ?? 'Bad gateway');
+    public badGateway<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(502, false, message ?? 'Bad gateway', data);
     }
 
-    public serviceUnavailable<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 503, data ?? 'Service unavailable');
+    public serviceUnavailable<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(503, false, message ?? 'Service unavailable', data);
     }
 
-    public gatewayTimeout<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 504, data ?? 'Gateway timeout');
+    public gatewayTimeout<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(504, false, message ?? 'Gateway timeout', data);
     }
 
-    public tooManyRequests<T>(data?: T) {
-        return Controller.jsonResponse<T | string>(this.res, 429, data ?? 'Too many requests');
+    public tooManyRequests<T>(message?: string, data?: T) {
+        return this.JSONResponse<T | string>(429, false, message ?? 'Too many requests', data);
     }
 }

@@ -2,10 +2,10 @@
 export class Result<T> {
     public isSuccess: boolean;
     public isException: boolean;
-    public exception: T | string | undefined;
+    public exception: T | undefined;
     private _value: T | undefined;
 
-    public constructor(isSuccess: boolean, exception?: T | string, value?: T) {
+    public constructor(isSuccess: boolean, exception?: T, value?: T) {
         if (isSuccess && exception)
             throw new Error('InvalidOperation: A result cannot be successful and contain an exception');
 
@@ -26,7 +26,7 @@ export class Result<T> {
         return this._value;
     }
 
-    public exceptionValue(): T | string | undefined {
+    public getExceptionValue(): T | undefined {
         return this.exception;
     }
 

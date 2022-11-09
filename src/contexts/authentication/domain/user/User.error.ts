@@ -1,16 +1,29 @@
 import { DomainError, Result } from '../../../shared/domain';
 
-export type CreateUserErrors = 'INVALID_USER_NAME';
+export type UserErrors = 'user.email.notfound' | 'user.password.notfound';
 
-export class InvalidUserNameError<T> extends Result<DomainError<CreateUserErrors, T>> {
-    constructor(error?: T) {
+export class InvalidUserEmailError extends Result<DomainError<UserErrors>> {
+    constructor(error?: unknown) {
         super(false, {
-            message: 'INVALID_USER_NAME',
+            message: 'user.email.notfound',
             error,
         });
     }
 
-    public static create<T>(error?: T): InvalidUserNameError<T> {
-        return new InvalidUserNameError(error);
+    public static create(error?: unknown): InvalidUserEmailError {
+        return new InvalidUserEmailError(error);
+    }
+}
+
+export class InvalidUserPasswordError extends Result<DomainError<UserErrors>> {
+    constructor(error?: unknown) {
+        super(false, {
+            message: 'user.password.notfound',
+            error,
+        });
+    }
+
+    public static create(error?: unknown): InvalidUserPasswordError {
+        return new InvalidUserPasswordError(error);
     }
 }

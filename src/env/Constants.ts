@@ -7,7 +7,7 @@ export const CONSTANTS = {
     /* application */
     ENVIRONMENT: (process.env['ENVIRONMENT'] ?? 'development') as Environment,
     PORT: process.env['PORT'] ?? '8080',
-    MICROSERVICE: process.env['MICROSERVICE'] ?? 'Microservice',
+    MICROSERVICE: process.env['MICROSERVICE'] ?? 'microservice',
     /* PostgreSQL */
     POSTGRESQL_HOST: process.env['POSTGRESQL_HOST'] ?? '',
     POSTGRESQL_PORT: process.env['POSTGRESQL_PORT'] ?? '',

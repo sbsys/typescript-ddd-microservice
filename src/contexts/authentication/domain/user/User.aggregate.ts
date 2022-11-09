@@ -1,15 +1,16 @@
 import { AggregateRoot, Either, success, UniqueEntityID } from '../../../shared/domain';
-import { Name } from './Name.value';
+import { Email } from './Email.value';
+import { Password } from './Password.value';
 
 interface UserProps {
     id?: UniqueEntityID;
-    name: Name;
+    email: Email;
+    password: Password;
 }
 
 export class UserAggregate extends AggregateRoot<UserProps> {
     private constructor(props: UserProps) {
         super(props);
-        this.props.name = props.name;
     }
 
     public get value(): UserProps {

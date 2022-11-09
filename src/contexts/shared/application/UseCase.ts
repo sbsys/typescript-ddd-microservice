@@ -1,5 +1,5 @@
-import { Either } from '../domain';
+import { Either, Result } from '../domain';
 
 export interface UseCase<REQUEST, EXCEPTION, SUCCESS> {
-    execute(request?: REQUEST): Promise<Either<EXCEPTION, SUCCESS>> | Either<EXCEPTION, SUCCESS>;
+    execute(request?: REQUEST): Promise<Either<EXCEPTION, Result<SUCCESS>>> | Either<EXCEPTION, Result<SUCCESS>>;
 }

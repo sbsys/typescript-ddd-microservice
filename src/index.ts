@@ -1,4 +1,4 @@
-/* import/export server */
-import './env';
-import './contexts/shared/domain';
-import './apps';
+import { container } from './env';
+import { Api } from './apps';
+
+container.resolve(Api).run();

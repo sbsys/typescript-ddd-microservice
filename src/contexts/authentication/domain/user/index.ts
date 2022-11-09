@@ -1,4 +1,5 @@
 /* import/export */
-export * from './User.error';
-export * from './Name.value';
+export * from './Email.value';
+export * from './Password.value';
 export * from './User.aggregate';
+export * from './User.error';
