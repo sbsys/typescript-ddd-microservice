@@ -20,14 +20,14 @@ export class Result<T> {
         Object.freeze(this);
     }
 
-    public getValue(): T | undefined {
+    public getValue(): T {
         if (!this.isSuccess) throw new Error("Can't get the value of an error result. Use 'errorValue' instead.");
 
-        return this._value;
+        return this._value as T;
     }
 
-    public getExceptionValue(): T | undefined {
-        return this.exception;
+    public getExceptionValue(): T {
+        return this.exception as T;
     }
 
     public static ok<U>(value?: U): Result<U> {
@@ -48,10 +48,10 @@ export class Result<T> {
 export type Either<EXCEPTION, SUCCESS> = Exception<EXCEPTION, SUCCESS> | Success<EXCEPTION, SUCCESS>;
 
 export class Exception<EXCEPTION, SUCCESS> {
-    readonly value: EXCEPTION;
+    readonly error: EXCEPTION;
 
     constructor(value: EXCEPTION) {
-        this.value = value;
+        this.error = value;
     }
 
     isException(): this is Exception<EXCEPTION, SUCCESS> {

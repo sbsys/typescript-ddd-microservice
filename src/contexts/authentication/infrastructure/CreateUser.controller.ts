@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify';
 import { Symbols } from '../../../env';
 import { Controller } from '../../shared/infrastructure/Controller';
 import { CreateUserUseCase } from '../application/commands';
-import { InvalidUserEmailError, InvalidUserPasswordError } from '../domain/user';
+import { NotValidEmailException, NotValidPasswordException } from '../domain/User';
 
 @injectable()
 export class CreateUserController extends Controller {
@@ -16,18 +16,18 @@ export class CreateUserController extends Controller {
         const result = await this.createUser.execute({ email, password });
 
         if (result.isException()) {
-            const error = result.value;
+            const error = result.error;
 
             switch (error.constructor) {
-                case InvalidUserEmailError: {
-                    return this.conflict(error.getExceptionValue()?.message);
+                case NotValidEmailException: {
+                    return this.conflict(error.getExceptionValue().message);
                 }
-                case InvalidUserPasswordError: {
-                    return this.conflict(error.getExceptionValue()?.message);
+                case NotValidPasswordException: {
+                    return this.conflict(error.getExceptionValue().message);
                 }
             }
         }
 
-        return this.created('user.created');
+        return this.created('user.success.created');
     }
 }
