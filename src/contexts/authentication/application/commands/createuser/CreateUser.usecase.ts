@@ -1,16 +1,24 @@
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
+import { Symbols } from '../../../../../env';
 import { UseCase } from '../../../../shared/application';
 import { Either, exception, Result, success } from '../../../../shared/domain';
-import { Email, NotValidEmailException, NotValidPasswordException, Password, UserAggregate } from '../../../domain/User';
-import { CreateUserDTO } from './CreateUser.dto';
+import {
+    Email,
+    NotValidPasswordException,
+    Password,
+    UserAggregate,
+    UserRepository,
+    UserRepositoryErros,
+} from '../../../domain/user';
+import { CreateUserRequest } from './CreateUser.request';
 
-type CreateUserErros = NotValidEmailException | NotValidPasswordException;
+type CreateUserErros = UserRepositoryErros | NotValidPasswordException | undefined;
 
 @injectable()
-export class CreateUserUseCase implements UseCase<CreateUserDTO, CreateUserErros, void> {
-    execute(
-        request: CreateUserDTO
-    ): Either<CreateUserErros, Result<void>> | Promise<Either<CreateUserErros, Result<void>>> {
+export class CreateUserUseCase implements UseCase<CreateUserRequest, CreateUserErros, void> {
+    constructor(@inject(Symbols.UserRepository) private userRepository: UserRepository) {}
+
+    async execute(request: CreateUserRequest): Promise<Either<CreateUserErros, Result<void>>> {
         const email = Email.create({ email: request.email });
 
         if (email.isException()) return exception(email.error);
@@ -24,7 +32,11 @@ export class CreateUserUseCase implements UseCase<CreateUserDTO, CreateUserErros
             password: password.value.getValue(),
         });
 
-        if (user.isSuccess()) console.log(user.value.domainEvents[0]);
+        if (user.isException()) return exception(user.error);
+
+        const stored = await this.userRepository.create(user.value);
+
+        if (stored.isException()) return exception(stored.error);
 
         return success(Result.ok());
     }

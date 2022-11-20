@@ -1,11 +1,19 @@
 import { DomainError, Result } from '../../../shared/domain';
 
-export type UserErrorMessage = 'exceptions.email.notvalid' | 'exceptions.password.notvalid';
+export type UserErrorMessage =
+    /* userExceptions */
+    | 'user.exceptions.id.notfound'
+    /* email exceptions */
+    | 'user.exceptions.email.notvalid'
+    | 'user.exceptions.email.already'
+    /* password exceptions */
+    | 'user.exceptions.password.notvalid';
 
-export class NotValidEmailException extends Result<DomainError<UserErrorMessage>> {
+/* id exceptions */
+export class NotFoundIdException extends Result<DomainError<UserErrorMessage>> {
     constructor(error?: unknown) {
         super(false, {
-            message: 'exceptions.email.notvalid',
+            message: 'user.exceptions.id.notfound',
             error,
         });
     }
@@ -15,10 +23,38 @@ export class NotValidEmailException extends Result<DomainError<UserErrorMessage>
     }
 }
 
+/* email exceptions */
+export class NotValidEmailException extends Result<DomainError<UserErrorMessage>> {
+    constructor(error?: unknown) {
+        super(false, {
+            message: 'user.exceptions.email.notvalid',
+            error,
+        });
+    }
+
+    public static create(error?: unknown): NotValidEmailException {
+        return new NotValidEmailException(error);
+    }
+}
+
+export class EmailAlreadyExistException extends Result<DomainError<UserErrorMessage>> {
+    constructor(error?: unknown) {
+        super(false, {
+            message: 'user.exceptions.email.already',
+            error,
+        });
+    }
+
+    public static create(error?: unknown): NotValidEmailException {
+        return new NotValidEmailException(error);
+    }
+}
+
+/* password exceptions */
 export class NotValidPasswordException extends Result<DomainError<UserErrorMessage>> {
     constructor(error?: unknown) {
         super(false, {
-            message: 'exceptions.password.notvalid',
+            message: 'user.exceptions.password.notvalid',
             error,
         });
     }

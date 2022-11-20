@@ -1,8 +1,8 @@
 import { inject, injectable } from 'inversify';
-import { Symbols } from '../../../env';
-import { Controller } from '../../shared/infrastructure/Controller';
-import { CreateUserUseCase } from '../application/commands';
-import { NotValidEmailException, NotValidPasswordException } from '../domain/User';
+import { Symbols } from '../../../../../env';
+import { Controller } from '../../../../shared/infrastructure';
+import { CreateUserUseCase } from '../../../application/commands';
+import { NotValidEmailException, NotValidPasswordException } from '../../../domain/user';
 
 @injectable()
 export class CreateUserController extends Controller {
@@ -17,6 +17,8 @@ export class CreateUserController extends Controller {
 
         if (result.isException()) {
             const error = result.error;
+
+            if (!error) return this.internalServerError();
 
             switch (error.constructor) {
                 case NotValidEmailException: {

@@ -1,4 +1,4 @@
-import { AggregateRoot, Either, success, UniqueEntityID } from '../../../shared/domain';
+import { AggregateRoot, Either, exception, success, UniqueEntityID } from '../../../shared/domain';
 import { Email } from './Email.value';
 import { Password } from './Password.value';
 import { UserCreatedEvent } from './UserCreated.event';
@@ -13,7 +13,7 @@ export class UserAggregate extends AggregateRoot<UserProps> {
         super(props, id);
     }
 
-    public static create(props: UserProps, id?: UniqueEntityID): Either<null, UserAggregate> {
+    public static create(props: UserProps, id?: UniqueEntityID): Either<undefined, UserAggregate> {
         return success(
             new UserAggregate(
                 {
@@ -24,15 +24,13 @@ export class UserAggregate extends AggregateRoot<UserProps> {
         );
     }
 
-    public static createToSave(props: UserProps, id?: UniqueEntityID): Either<null, UserAggregate> {
-        const user = new UserAggregate(
-            {
-                ...props,
-            },
-            id
-        );
-        user.addDomainEvent(UserCreatedEvent.create(user.id));
+    public static createToSave(props: UserProps, id: UniqueEntityID): Either<undefined, UserAggregate> {
+        const user = this.create(props, id);
 
-        return success(user);
+        if (user.isException()) return exception(user.error);
+
+        user.value.addDomainEvent(UserCreatedEvent.create(user.value.id));
+
+        return success(user.value);
     }
 }

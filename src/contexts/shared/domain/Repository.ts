@@ -1,12 +1,12 @@
 import { Either, Result } from './Result';
 import { UniqueEntityID } from './UniqueEntityID';
 
-interface Paginate {
+export interface Paginate {
     page: number;
     pp: number;
 }
 
-interface Page<T> extends Paginate {
+export interface Page<T> extends Paginate {
     total: number;
     data: T[];
 }
