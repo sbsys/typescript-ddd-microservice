@@ -1,4 +1,4 @@
-import { DomainError, Result } from '../../../shared/domain';
+import { DomainError } from '../../../shared/domain';
 
 export type UserErrorMessage =
     /* userExceptions */
@@ -9,57 +9,35 @@ export type UserErrorMessage =
     /* password exceptions */
     | 'user.exceptions.password.notvalid';
 
-/* id exceptions */
-export class NotFoundIdException extends Result<DomainError<UserErrorMessage>> {
-    constructor(error?: unknown) {
-        super(false, {
-            message: 'user.exceptions.id.notfound',
-            error,
-        });
-    }
+export type UserExceptions =
+    | NotFoundIdException
+    | NotValidEmailException
+    | EmailAlreadyExistException
+    | NotValidPasswordException;
 
-    public static create(error?: unknown): NotValidEmailException {
-        return new NotValidEmailException(error);
+/* id exceptions */
+export class NotFoundIdException extends DomainError<UserErrorMessage> {
+    public static create<EXCEPTION>(exception?: EXCEPTION): NotFoundIdException {
+        return new NotFoundIdException('user.exceptions.id.notfound', exception);
     }
 }
 
 /* email exceptions */
-export class NotValidEmailException extends Result<DomainError<UserErrorMessage>> {
-    constructor(error?: unknown) {
-        super(false, {
-            message: 'user.exceptions.email.notvalid',
-            error,
-        });
-    }
-
-    public static create(error?: unknown): NotValidEmailException {
-        return new NotValidEmailException(error);
+export class NotValidEmailException extends DomainError<UserErrorMessage> {
+    public static create<EXCEPTION>(exception?: EXCEPTION): NotValidEmailException {
+        return new NotValidEmailException('user.exceptions.email.notvalid', exception);
     }
 }
 
-export class EmailAlreadyExistException extends Result<DomainError<UserErrorMessage>> {
-    constructor(error?: unknown) {
-        super(false, {
-            message: 'user.exceptions.email.already',
-            error,
-        });
-    }
-
-    public static create(error?: unknown): NotValidEmailException {
-        return new NotValidEmailException(error);
+export class EmailAlreadyExistException extends DomainError<UserErrorMessage> {
+    public static create<EXCEPTION>(exception?: EXCEPTION): EmailAlreadyExistException {
+        return new EmailAlreadyExistException('user.exceptions.email.already', exception);
     }
 }
 
 /* password exceptions */
-export class NotValidPasswordException extends Result<DomainError<UserErrorMessage>> {
-    constructor(error?: unknown) {
-        super(false, {
-            message: 'user.exceptions.password.notvalid',
-            error,
-        });
-    }
-
-    public static create(error?: unknown): NotValidPasswordException {
-        return new NotValidPasswordException(error);
+export class NotValidPasswordException extends DomainError<UserErrorMessage> {
+    public static create<EXCEPTION>(exception?: EXCEPTION): NotValidPasswordException {
+        return new NotValidPasswordException('user.exceptions.password.notvalid', exception);
     }
 }

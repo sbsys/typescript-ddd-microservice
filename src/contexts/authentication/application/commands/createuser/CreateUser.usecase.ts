@@ -1,43 +1,39 @@
 import { inject, injectable } from 'inversify';
 import { Symbols } from '../../../../../env';
 import { UseCase } from '../../../../shared/application';
-import { Either, exception, Result, success } from '../../../../shared/domain';
-import {
-    Email,
-    NotValidPasswordException,
-    Password,
-    UserAggregate,
-    UserRepository,
-    UserRepositoryErros,
-} from '../../../domain/user';
+import { Result, UniqueEntityID } from '../../../../shared/domain';
+import { Email, Password, UserAggregate, UserExceptions, UserRepository } from '../../../domain/user';
 import { CreateUserRequest } from './CreateUser.request';
 
-type CreateUserErros = UserRepositoryErros | NotValidPasswordException | undefined;
+type RESPONSE = Result<UserExceptions, void>;
 
 @injectable()
-export class CreateUserUseCase implements UseCase<CreateUserRequest, CreateUserErros, void> {
+export class CreateUserUseCase implements UseCase<CreateUserRequest, RESPONSE> {
     constructor(@inject(Symbols.UserRepository) private userRepository: UserRepository) {}
 
-    async execute(request: CreateUserRequest): Promise<Either<CreateUserErros, Result<void>>> {
+    async execute(request: CreateUserRequest): Promise<RESPONSE> {
         const email = Email.create({ email: request.email });
 
-        if (email.isException()) return exception(email.error);
+        if (email.isException) return Result.Exception(email.getExceptionValue());
 
         const password = Password.create({ password: request.password });
 
-        if (password.isException()) return exception(password.error);
+        if (password.isException) return Result.Exception(password.getExceptionValue());
 
-        const user = UserAggregate.createToSave({
-            email: email.value.getValue(),
-            password: password.value.getValue(),
-        });
+        const user = UserAggregate.createToSave(
+            {
+                email: email.getSuccessValue(),
+                password: password.getSuccessValue(),
+            },
+            new UniqueEntityID()
+        );
 
-        if (user.isException()) return exception(user.error);
+        if (user.isException) return Result.Exception(user.getExceptionValue());
 
-        const stored = await this.userRepository.create(user.value);
+        const stored = await this.userRepository.create(user.getSuccessValue());
 
-        if (stored.isException()) return exception(stored.error);
+        if (stored.isException) return Result.Exception(stored.getExceptionValue());
 
-        return success(Result.ok());
+        return Result.Success();
     }
 }

@@ -1,30 +1,15 @@
 import { DomainError } from './DomainError';
-import { Result } from './Result';
 
-export type CommonErrors = 'UNEXPECTED_ERROR' | 'NOT_FOUND_ERROR';
+export type CommonsErrorMessage = 'commons.exceptions.unexpected' | 'commons.exceptions.notfound';
 
-export class UnexpectedError<T> extends Result<DomainError<CommonErrors, T>> {
-    constructor(error?: T) {
-        super(false, {
-            message: 'UNEXPECTED_ERROR',
-            error,
-        });
-    }
-
-    public static create<T>(error?: T): UnexpectedError<T> {
-        return new UnexpectedError(error);
+export class UnexpectedError extends DomainError<CommonsErrorMessage> {
+    public static create<EXCEPTION>(exception?: EXCEPTION): UnexpectedError {
+        return new UnexpectedError('commons.exceptions.unexpected', exception);
     }
 }
 
-export class NotFoundError<T> extends Result<DomainError<CommonErrors, T>> {
-    constructor(error?: T) {
-        super(false, {
-            message: 'NOT_FOUND_ERROR',
-            error,
-        });
-    }
-
-    public static create<T>(error?: T): NotFoundError<T> {
-        return new NotFoundError(error);
+export class NotFoundError extends DomainError<CommonsErrorMessage> {
+    public static create<EXCEPTION>(exception?: EXCEPTION): NotFoundError {
+        return new NotFoundError('commons.exceptions.notfound', exception);
     }
 }

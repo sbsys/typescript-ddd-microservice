@@ -1,9 +1,11 @@
-import { Either, Result } from '../domain';
+import { injectable } from 'inversify';
+import { Result } from '../domain';
 
-export abstract class Serializer<EXCEPTION, ENTITY, MODEL, DTO, RESPONSE> {
+@injectable()
+export abstract class Serializer<EXCEPTIONS, ENTITY, MODEL, DTO, RESPONSE> {
     public abstract fromEntityToDTO(entity: ENTITY): DTO;
 
-    public abstract fromModelToEntity(model: MODEL): Either<EXCEPTION, Result<ENTITY>>;
+    public abstract fromModelToEntity(model: MODEL): Result<EXCEPTIONS, ENTITY>;
 
     public abstract fromEntityToResponse(entity: ENTITY): RESPONSE;
 }

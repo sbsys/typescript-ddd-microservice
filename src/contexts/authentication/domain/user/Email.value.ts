@@ -1,4 +1,4 @@
-import { Either, exception, Result, success, ValueObject } from '../../../shared/domain';
+import { Result, ValueObject } from '../../../shared/domain';
 import { NotValidEmailException } from './User.exceptions';
 
 export type CreateEmailExceptions = NotValidEmailException;
@@ -12,9 +12,9 @@ export class Email extends ValueObject<EmailProps> {
         return this.props.email;
     }
 
-    public static create(props: EmailProps): Either<CreateEmailExceptions, Result<Email>> {
-        if (!props.email || props.email.length === 0) return exception(NotValidEmailException.create(props));
+    public static create(props: EmailProps): Result<CreateEmailExceptions, Email> {
+        if (!props.email || props.email.length === 0) return Result.Exception(NotValidEmailException.create(props));
 
-        return success(Result.ok<Email>(new Email(props)));
+        return Result.Success(new Email(props));
     }
 }

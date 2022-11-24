@@ -1,57 +1,60 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export class Result<T> {
-    public isSuccess: boolean;
+export class Result<EXCEPTION, SUCCESS> {
     public isException: boolean;
-    public exception: T | undefined;
-    private _value: T | undefined;
+    private _exception?: EXCEPTION;
 
-    public constructor(isSuccess: boolean, exception?: T, value?: T) {
+    public isSuccess: boolean;
+    private _success?: SUCCESS;
+
+    public constructor(isSuccess: boolean, exception?: EXCEPTION, success?: SUCCESS) {
         if (isSuccess && exception)
             throw new Error('InvalidOperation: A result cannot be successful and contain an exception');
 
         if (!isSuccess && !exception)
             throw new Error('InvalidOperation: A failing result needs to contain an exception');
 
-        this.isSuccess = isSuccess;
         this.isException = !isSuccess;
-        this.exception = exception;
-        this._value = value;
+        this.isSuccess = isSuccess;
+        this._exception = exception;
+        this._success = success;
 
         Object.freeze(this);
     }
 
-    public getValue(): T {
+    public getSuccessValue(): SUCCESS {
         if (!this.isSuccess) throw new Error("Can't get the value of an error result. Use 'errorValue' instead.");
 
-        return this._value as T;
+        return this._success as SUCCESS;
     }
 
-    public getExceptionValue(): T {
-        return this.exception as T;
+    public getExceptionValue(): EXCEPTION {
+        return this._exception as EXCEPTION;
     }
 
-    public static ok<U>(value?: U): Result<U> {
-        return new Result<U>(true, undefined, value);
+    public static Success<EXCEPTION, SUCCESS>(success?: SUCCESS): Result<EXCEPTION, SUCCESS> {
+        return new Result<EXCEPTION, SUCCESS>(true, undefined, success);
     }
 
-    public static fail<U>(error: any): Result<U> {
-        return new Result<U>(false, error);
+    public static Exception<EXCEPTION, SUCCESS>(exception: EXCEPTION): Result<EXCEPTION, SUCCESS> {
+        return new Result<EXCEPTION, SUCCESS>(false, exception);
     }
 
-    public static combine(results: Result<any>[]): Result<any> {
-        for (const result of results) if (result.isException) return result;
+    public static Combine<EXCEPTION>(results: Result<EXCEPTION, any>[]): Result<EXCEPTION, void> {
+        const foundException = results.find(result => result.isException);
 
-        return Result.ok();
+        if (foundException) return foundException;
+
+        return Result.Success();
     }
 }
 
-export type Either<EXCEPTION, SUCCESS> = Exception<EXCEPTION, SUCCESS> | Success<EXCEPTION, SUCCESS>;
+/* export type Either<EXCEPTION, SUCCESS> = Exception<EXCEPTION, SUCCESS> | Success<EXCEPTION, SUCCESS>;
 
 export class Exception<EXCEPTION, SUCCESS> {
-    readonly error: EXCEPTION;
+    readonly result: EXCEPTION;
 
-    constructor(value: EXCEPTION) {
-        this.error = value;
+    constructor(exception: EXCEPTION) {
+        this.result = exception;
     }
 
     isException(): this is Exception<EXCEPTION, SUCCESS> {
@@ -64,10 +67,10 @@ export class Exception<EXCEPTION, SUCCESS> {
 }
 
 export class Success<EXCEPTION, SUCCESS> {
-    readonly value: SUCCESS;
+    readonly result: SUCCESS;
 
-    constructor(value: SUCCESS) {
-        this.value = value;
+    constructor(success: SUCCESS) {
+        this.result = success;
     }
 
     isException(): this is Exception<EXCEPTION, SUCCESS> {
@@ -79,10 +82,10 @@ export class Success<EXCEPTION, SUCCESS> {
     }
 }
 
-export const exception = <EXCEPTION, SUCCESS>(e: EXCEPTION): Either<EXCEPTION, SUCCESS> => {
-    return new Exception(e);
+export const exception = <EXCEPTION, SUCCESS>(exception: EXCEPTION): Either<EXCEPTION, SUCCESS> => {
+    return new Exception(exception);
 };
 
-export const success = <EXCEPTION, SUCCESS>(s: SUCCESS): Either<EXCEPTION, SUCCESS> => {
-    return new Success<EXCEPTION, SUCCESS>(s);
-};
+export const success = <EXCEPTION, SUCCESS>(success: SUCCESS): Either<EXCEPTION, SUCCESS> => {
+    return new Success<EXCEPTION, SUCCESS>(success);
+}; */

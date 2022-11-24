@@ -1,19 +1,19 @@
 import { inject, injectable } from 'inversify';
 import { Symbols } from '../../../../../env';
 import { Controller } from '../../../../shared/infrastructure';
-import { CreateUserUseCase } from '../../../application/commands';
+import { GetUserListUseCase } from '../../../application/queries';
 import { NotValidEmailException, NotValidPasswordException } from '../../../domain/user';
 
 @injectable()
-export class CreateUserController extends Controller {
-    constructor(@inject(Symbols.CreateUserUseCase) private createUser: CreateUserUseCase) {
+export class GetUserListController extends Controller {
+    constructor(@inject(Symbols.GetUserListUseCase) private getUserList: GetUserListUseCase) {
         super();
     }
 
     protected async implementation(): Promise<void> {
-        const { email, password } = this.req.body;
+        /* const { email, password } = this.req.body; */
 
-        const result = await this.createUser.execute({ email, password });
+        const result = await this.getUserList.execute({});
 
         if (result.isException) {
             const error = result.getExceptionValue();
@@ -28,6 +28,6 @@ export class CreateUserController extends Controller {
             }
         }
 
-        return this.created('user.success.created');
+        return this.created('user.success.list');
     }
 }

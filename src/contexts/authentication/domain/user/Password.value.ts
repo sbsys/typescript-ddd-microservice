@@ -1,7 +1,7 @@
-import { Either, exception, Result, success, ValueObject } from '../../../shared/domain';
+import { Result, ValueObject } from '../../../shared/domain';
 import { NotValidPasswordException } from './User.exceptions';
 
-export type CreatePasswordExceptions = NotValidPasswordException;
+type CreatePasswordExceptions = NotValidPasswordException;
 
 export interface PasswordProps {
     password: string;
@@ -12,9 +12,10 @@ export class Password extends ValueObject<PasswordProps> {
         return this.props.password;
     }
 
-    public static create(props: PasswordProps): Either<CreatePasswordExceptions, Result<Password>> {
-        if (!props.password || props.password.length === 0) return exception(NotValidPasswordException.create(props));
+    public static create(props: PasswordProps): Result<CreatePasswordExceptions, Password> {
+        if (!props.password || props.password.length === 0)
+            return Result.Exception(NotValidPasswordException.create(props));
 
-        return success(Result.ok<Password>(new Password(props)));
+        return Result.Success(new Password(props));
     }
 }

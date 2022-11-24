@@ -5,7 +5,7 @@ import { UniqueEntityID } from './UniqueEntityID';
 const isEntity = (v: any): v is Entity<any> => v instanceof Entity;
 
 export abstract class Entity<PROPS> {
-    protected readonly _id: UniqueEntityID;
+    private readonly _id: UniqueEntityID;
 
     public readonly props: PROPS;
 
@@ -13,6 +13,10 @@ export abstract class Entity<PROPS> {
         this._id = id ?? new UniqueEntityID();
 
         this.props = props;
+    }
+
+    get id(): UniqueEntityID {
+        return this._id;
     }
 
     public equals(object?: Entity<PROPS>): boolean {

@@ -2,14 +2,9 @@ import { DomainEvent } from './DomainEvent';
 import { DomainEvents } from './DomainEvents';
 import { Entity } from './Entity';
 import { Logger } from '../../../env';
-import { UniqueEntityID } from './UniqueEntityID';
 
 export abstract class AggregateRoot<PROPS> extends Entity<PROPS> {
     private _domainEvents: DomainEvent[] = [];
-
-    get id(): UniqueEntityID {
-        return this._id;
-    }
 
     get domainEvents(): DomainEvent[] {
         return this._domainEvents;

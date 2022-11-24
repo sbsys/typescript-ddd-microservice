@@ -1,2 +1,3 @@
 /* import/export */
-export {};
+export * from './GetUserList';
+export * from './GetUserById';

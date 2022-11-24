@@ -1,14 +1,13 @@
 import { inject, injectable } from 'inversify';
 import { Symbols } from '../../../../env';
-import { Either, Result, UniqueEntityID, Paginate, Page, success, exception } from '../../../shared/domain';
+import { Result, UniqueEntityID, Paginate, Page } from '../../../shared/domain';
 import {
     Email,
     EmailAlreadyExistException,
     NotFoundIdException,
-    Password,
     UserAggregate,
+    UserExceptions,
     UserRepository,
-    UserRepositoryErros,
 } from '../../domain/user';
 import { UserModel } from '../models';
 import { UserSerializer } from '../serializers';
@@ -19,16 +18,17 @@ const UserDB: UserModel[] = [];
 export class InMemoryUserRepository implements UserRepository {
     constructor(@inject(Symbols.UserSerializer) private userSerializer: UserSerializer) {}
 
-    async isEmailAvailable(email: Email): Promise<Either<UserRepositoryErros, Result<void>>> {
-        if (UserDB.find(user => user.email === email.value)) return exception(EmailAlreadyExistException.create());
+    async isEmailAvailable(email: Email): Promise<Result<UserExceptions, void>> {
+        if (UserDB.find(user => user.email === email.value))
+            return Result.Exception(EmailAlreadyExistException.create());
 
-        return success(Result.ok());
+        return Result.Success();
     }
 
-    async create(props: UserAggregate): Promise<Either<UserRepositoryErros, Result<void>>> {
+    async create(props: UserAggregate): Promise<Result<UserExceptions, void>> {
         const isEmailAvailable = await this.isEmailAvailable(props.props.email);
 
-        if (isEmailAvailable.isException()) return exception(isEmailAvailable.error);
+        if (isEmailAvailable.isException) return Result.Exception(isEmailAvailable.getExceptionValue());
 
         UserDB.push({
             ...this.userSerializer.fromEntityToDTO(props),
@@ -37,53 +37,65 @@ export class InMemoryUserRepository implements UserRepository {
             updatedAt: new Date().toISOString(),
         });
 
-        return success(Result.ok());
+        return Result.Success();
     }
 
-    async readById(id: UniqueEntityID): Promise<Either<UserRepositoryErros, Result<UserAggregate>>> {
+    async readById(id: UniqueEntityID): Promise<Result<UserExceptions, UserAggregate>> {
         const foundUser = UserDB.find(user => user.id === id.toString() && user.status);
 
-        if (!foundUser) return exception(NotFoundIdException.create());
+        if (!foundUser) return Result.Exception(NotFoundIdException.create());
 
-        const email = Email.create({ email: foundUser.email });
+        const user = this.userSerializer.fromModelToEntity(foundUser);
 
-        if (email.isException()) return exception(email.error);
+        if (user.isException) return Result.Exception(user.getExceptionValue());
 
-        const password = Password.create({ password: foundUser.password });
-
-        if (password.isException()) return exception(password.error);
-
-        const user = UserAggregate.create({
-            email: email.value.getValue(),
-            password: password.value.getValue(),
-        });
-
-        if (user.isException()) return exception(user.error);
-
-        return success(Result.ok(user.value));
+        return Result.Success(user.getSuccessValue());
     }
 
-    async readAll(paginate: Paginate): Promise<Either<UserRepositoryErros, Result<Page<UserAggregate>>>> {
+    async readAll(paginate: Paginate): Promise<Result<UserExceptions, Page<UserAggregate>>> {
+        const data = UserDB.map(user => this.userSerializer.fromModelToEntity(user));
+
+        const foundException = Result.Combine(data);
+
+        if (foundException) return Result.Exception(foundException.getExceptionValue());
+
         const page: Page<UserAggregate> = {
             page: paginate.page,
             pp: paginate.pp,
             total: 10,
-            data: UserDB.reduce((prev, current) => {
-                const serialized = this.userSerializer.fromModelToEntity(current);
-
-                if (serialized.isException()) return prev;
-
-                return [...prev, serialized.value.getValue()];
-            }, [] as UserAggregate[]),
+            data: data.map(user => user.getSuccessValue()),
         };
 
-        return success(Result.ok(page));
+        return Result.Success(page);
     }
 
-    async updateById(id: UniqueEntityID, props: UserAggregate): Promise<Either<UserRepositoryErros, Result<void>>> {
-        throw new Error('Method not implemented.');
+    async updateById(id: UniqueEntityID, props: UserAggregate): Promise<Result<UserExceptions, void>> {
+        const foundedIndex = UserDB.findIndex(user => user.id === id.toString());
+
+        if (foundedIndex === -1) return Result.Exception(NotFoundIdException.create());
+
+        UserDB[foundedIndex] = {
+            ...UserDB[foundedIndex],
+            email: props.props.email.value,
+            password: props.props.password.value,
+            updatedAt: new Date().toISOString(),
+        } as UserModel;
+
+        return Result.Success();
     }
-    async deleteById(id: UniqueEntityID): Promise<Either<UserRepositoryErros, Result<void>>> {
-        throw new Error('Method not implemented.');
+
+    async deleteById(id: UniqueEntityID): Promise<Result<UserExceptions, void>> {
+        const foundedIndex = UserDB.findIndex(user => user.id === id.toString());
+
+        if (foundedIndex === -1) return Result.Exception(NotFoundIdException.create(id));
+
+        UserDB[foundedIndex] = {
+            ...UserDB[foundedIndex],
+            status: false,
+            updatedAt: new Date().toISOString(),
+            deletedAt: new Date().toISOString(),
+        } as UserModel;
+
+        return Result.Success();
     }
 }

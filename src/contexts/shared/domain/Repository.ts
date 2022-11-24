@@ -1,4 +1,4 @@
-import { Either, Result } from './Result';
+import { Result } from './Result';
 import { UniqueEntityID } from './UniqueEntityID';
 
 export interface Paginate {
@@ -11,14 +11,14 @@ export interface Page<T> extends Paginate {
     data: T[];
 }
 
-export interface Repository<EXCEPTION, ENTITY> {
-    create(props: ENTITY): Promise<Either<EXCEPTION, Result<void>>>;
+export interface Repository<EXCEPTIONS, ENTITY> {
+    create(props: ENTITY): Promise<Result<EXCEPTIONS, void>>;
 
-    readById(id: UniqueEntityID): Promise<Either<EXCEPTION, Result<ENTITY>>>;
+    readById(id: UniqueEntityID): Promise<Result<EXCEPTIONS, ENTITY>>;
 
-    readAll<Q>(paginate: Paginate, query?: Q): Promise<Either<EXCEPTION, Result<Page<ENTITY>>>>;
+    readAll<Q>(paginate: Paginate, query?: Q): Promise<Result<EXCEPTIONS, Page<ENTITY>>>;
 
-    updateById(id: UniqueEntityID, props: ENTITY): Promise<Either<EXCEPTION, Result<void>>>;
+    updateById(id: UniqueEntityID, props: ENTITY): Promise<Result<EXCEPTIONS, void>>;
 
-    deleteById(id: UniqueEntityID): Promise<Either<EXCEPTION, Result<void>>>;
+    deleteById(id: UniqueEntityID): Promise<Result<EXCEPTIONS, void>>;
 }

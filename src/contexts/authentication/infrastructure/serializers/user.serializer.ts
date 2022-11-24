@@ -1,19 +1,11 @@
 import { injectable } from 'inversify';
-import { Either, exception, Result, success, UniqueEntityID } from '../../../shared/domain';
+import { Result, UniqueEntityID } from '../../../shared/domain';
 import { Serializer } from '../../../shared/infrastructure';
-import { CreateEmailExceptions, CreatePasswordExceptions, Email, Password, UserAggregate } from '../../domain/user';
+import { Email, Password, UserAggregate, UserExceptions } from '../../domain/user';
 import { CreateUserDTO, UserModel, UserResponse } from '../models';
 
-export type UserSerializerExceptions = CreateEmailExceptions | CreatePasswordExceptions | undefined;
-
 @injectable()
-export class UserSerializer extends Serializer<
-    UserSerializerExceptions,
-    UserAggregate,
-    UserModel,
-    CreateUserDTO,
-    UserResponse
-> {
+export class UserSerializer extends Serializer<UserExceptions, UserAggregate, UserModel, CreateUserDTO, UserResponse> {
     public fromEntityToDTO(entity: UserAggregate): CreateUserDTO {
         return {
             id: entity.id.toString(),
@@ -22,26 +14,26 @@ export class UserSerializer extends Serializer<
         };
     }
 
-    public fromModelToEntity(model: UserModel): Either<UserSerializerExceptions, Result<UserAggregate>> {
+    public fromModelToEntity(model: UserModel): Result<UserExceptions, UserAggregate> {
         const email = Email.create({ email: model.email });
 
-        if (email.isException()) return exception(email.error);
+        if (email.isException) return Result.Exception(email.getExceptionValue());
 
         const password = Password.create({ password: model.password });
 
-        if (password.isException()) return exception(password.error);
+        if (password.isException) return Result.Exception(password.getExceptionValue());
 
         const user = UserAggregate.create(
             {
-                email: email.value.getValue(),
-                password: password.value.getValue(),
+                email: email.getSuccessValue(),
+                password: password.getSuccessValue(),
             },
             new UniqueEntityID(model.id)
         );
 
-        if (user.isException()) return exception(user.error);
+        if (user.isException) return Result.Exception(user.getExceptionValue());
 
-        return success(Result.ok(user.value));
+        return Result.Success(user.getSuccessValue());
     }
 
     public fromEntityToResponse(entity: UserAggregate): UserResponse {
