@@ -40,11 +40,11 @@ export class DomainEvents {
         this.removeAggregateFromMarkedDispatchList(aggregate);
     }
 
-    public static register(callback: (event: DomainEvent) => void, eventClassName: string): void {
-        if (!this.handlersMap[eventClassName] || !Array.isArray(this.handlersMap[eventClassName]))
-            this.handlersMap[eventClassName] = [];
+    public static register(callback: (event: DomainEvent) => void, eventName: string): void {
+        if (!this.handlersMap[eventName] || !Array.isArray(this.handlersMap[eventName]))
+            this.handlersMap[eventName] = [];
 
-        this.handlersMap[eventClassName]?.push(callback);
+        this.handlersMap[eventName]?.push(callback);
     }
 
     public static clearHandlers(): void {
@@ -56,9 +56,8 @@ export class DomainEvents {
     }
 
     private static dispatch(event: DomainEvent): void {
-        if (!this.handlersMap[event.constructor.name] || !Array.isArray(this.handlersMap[event.constructor.name]))
-            return;
+        if (!this.handlersMap[event.eventName] || !Array.isArray(this.handlersMap[event.eventName])) return;
 
-        for (const handler of this.handlersMap[event.constructor.name] ?? []) handler(event);
+        for (const handler of this.handlersMap[event.eventName] ?? []) handler(event);
     }
 }

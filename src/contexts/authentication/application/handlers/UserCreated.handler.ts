@@ -5,8 +5,9 @@ import { UserCreatedEvent } from '../../domain/user/UserCreated.event';
 
 @injectable()
 export class UserCreatedEventHandler implements DomainEventHandler<UserCreatedEvent> {
-    constructor(/* instantiate use cases */) {
-        this.setupSubscriptions();
+    constructor() {
+        /* instantiate use cases */
+        /* instantiate services */
     }
 
     setupSubscriptions(): void {
@@ -14,6 +15,6 @@ export class UserCreatedEventHandler implements DomainEventHandler<UserCreatedEv
     }
 
     async onEvent(event: UserCreatedEvent): Promise<void> {
-        console.log(event);
+        console.error('DISPATCHED', event);
     }
 }

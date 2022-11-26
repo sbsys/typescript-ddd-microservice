@@ -25,6 +25,9 @@ export class CreateUserController extends Controller {
                 case NotValidPasswordException: {
                     return this.conflict(error.message);
                 }
+                default: {
+                    return this.conflict(error.message);
+                }
             }
         }
 

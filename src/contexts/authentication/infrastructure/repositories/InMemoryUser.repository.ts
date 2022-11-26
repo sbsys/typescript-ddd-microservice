@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { Symbols } from '../../../../env';
-import { Result, UniqueEntityID, Paginate, Page } from '../../../shared/domain';
+import { Result, UniqueEntityID, Paginate, Page, DomainEvents } from '../../../shared/domain';
 import {
     Email,
     EmailAlreadyExistException,
@@ -19,7 +19,7 @@ export class InMemoryUserRepository implements UserRepository {
     constructor(@inject(Symbols.UserSerializer) private userSerializer: UserSerializer) {}
 
     async isEmailAvailable(email: Email): Promise<Result<UserExceptions, void>> {
-        if (UserDB.find(user => user.email === email.value))
+        if (UserDB.find(user => user.email === email.value) !== undefined)
             return Result.Exception(EmailAlreadyExistException.create());
 
         return Result.Success();
@@ -36,6 +36,8 @@ export class InMemoryUserRepository implements UserRepository {
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         });
+
+        DomainEvents.dispatchEventsForAggregate(props.id);
 
         return Result.Success();
     }
@@ -57,7 +59,7 @@ export class InMemoryUserRepository implements UserRepository {
 
         const foundException = Result.Combine(data);
 
-        if (foundException) return Result.Exception(foundException.getExceptionValue());
+        if (foundException.isException) return Result.Exception(foundException.getExceptionValue());
 
         const page: Page<UserAggregate> = {
             page: paginate.page,

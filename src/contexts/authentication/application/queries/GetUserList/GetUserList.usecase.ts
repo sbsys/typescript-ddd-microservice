@@ -1,17 +1,21 @@
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
+import { Symbols } from '../../../../../env';
 import { UseCase } from '../../../../shared/application';
-import { DomainEvents, Result } from '../../../../shared/domain';
-import { UserExceptions } from '../../../domain/user';
+import { Page, Result } from '../../../../shared/domain';
+import { UserAggregate, UserExceptions, UserRepository } from '../../../domain/user';
 import { GetUserListRequest } from './GetUserList.request';
 
-type RESPONSE = Result<UserExceptions, void>;
+type RESPONSE = Result<UserExceptions, Page<UserAggregate>>;
 
 @injectable()
 export class GetUserListUseCase implements UseCase<GetUserListRequest, RESPONSE> {
-    async execute(request: GetUserListRequest): Promise<RESPONSE> {
-        console.log('request', request);
-        console.log('EVENTS', DomainEvents);
+    constructor(@inject(Symbols.UserRepository) private userRepository: UserRepository) {}
 
-        return Result.Success();
+    async execute(): Promise<RESPONSE> {
+        const userList = await this.userRepository.readAll({ page: 1, pp: 10 });
+
+        if (userList.isException) return Result.Exception(userList.getExceptionValue());
+
+        return Result.Success(userList.getSuccessValue());
     }
 }

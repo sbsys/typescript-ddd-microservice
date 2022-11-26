@@ -16,6 +16,10 @@ export class CreateUserUseCase implements UseCase<CreateUserRequest, RESPONSE> {
 
         if (email.isException) return Result.Exception(email.getExceptionValue());
 
+        const isEmailAvailable = await this.userRepository.isEmailAvailable(email.getSuccessValue());
+
+        if (isEmailAvailable.isException) return Result.Exception(isEmailAvailable.getExceptionValue());
+
         const password = Password.create({ password: request.password });
 
         if (password.isException) return Result.Exception(password.getExceptionValue());
