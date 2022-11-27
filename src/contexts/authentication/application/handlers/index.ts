@@ -1,2 +1,2 @@
 /* import/export */
-export * from './UserCreated.handler';
+export * from './UserCreatedEvent.handler';

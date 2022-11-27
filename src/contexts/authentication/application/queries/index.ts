@@ -1,3 +1,2 @@
 /* import/export */
-export * from './GetUserList';
-export * from './GetUserById';
+export * from './GetUserList.usecase';

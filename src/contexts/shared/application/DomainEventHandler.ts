@@ -1,7 +1,3 @@
-import { DomainEvent } from '../domain';
-
-export interface DomainEventHandler<EVENT extends DomainEvent> {
+export interface DomainEventHandler {
     setupSubscriptions(): void;
-
-    onEvent(event: EVENT): Promise<void>;
 }

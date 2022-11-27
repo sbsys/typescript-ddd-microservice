@@ -1,9 +1,13 @@
 import { inject, injectable } from 'inversify';
-import { Symbols } from '../../../../../env';
-import { UseCase } from '../../../../shared/application';
-import { Result, UniqueEntityID } from '../../../../shared/domain';
-import { Email, Password, UserAggregate, UserExceptions, UserRepository } from '../../../domain/user';
-import { CreateUserRequest } from './CreateUser.request';
+import { Symbols } from '../../../../env';
+import { UseCase } from '../../../shared/application';
+import { DomainEvents, Result, UniqueEntityID } from '../../../shared/domain';
+import { Email, Password, UserAggregate, UserExceptions, UserRepository } from '../../domain/user';
+
+export type CreateUserRequest = {
+    email: string;
+    password: string;
+};
 
 type RESPONSE = Result<UserExceptions, void>;
 
@@ -15,10 +19,6 @@ export class CreateUserUseCase implements UseCase<CreateUserRequest, RESPONSE> {
         const email = Email.create({ email: request.email });
 
         if (email.isException) return Result.Exception(email.getExceptionValue());
-
-        const isEmailAvailable = await this.userRepository.isEmailAvailable(email.getSuccessValue());
-
-        if (isEmailAvailable.isException) return Result.Exception(isEmailAvailable.getExceptionValue());
 
         const password = Password.create({ password: request.password });
 
@@ -36,7 +36,11 @@ export class CreateUserUseCase implements UseCase<CreateUserRequest, RESPONSE> {
 
         const stored = await this.userRepository.create(user.getSuccessValue());
 
-        if (stored.isException) return Result.Exception(stored.getExceptionValue());
+        if (stored.isException) {
+            DomainEvents.removeAggregateFromMarkedDispatchList(user.getSuccessValue());
+
+            return Result.Exception(stored.getExceptionValue());
+        }
 
         return Result.Success();
     }

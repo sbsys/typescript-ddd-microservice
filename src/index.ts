@@ -1,7 +1,3 @@
-import { container } from './env';
-import { Api } from './apps';
-import { UserCreatedEventHandler } from './contexts/authentication/application/handlers';
+import { setup } from './setup';
 
-container.resolve(Api).run();
-
-container.resolve(UserCreatedEventHandler).setupSubscriptions();
+setup();
