@@ -1,14 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { Symbols } from '../../../../env';
 import { Result, UniqueEntityID, Paginate, Page, DomainEvents } from '../../../shared/domain';
-import {
-    Email,
-    EmailAlreadyExistException,
-    NotFoundIdException,
-    UserAggregate,
-    UserExceptions,
-    UserRepository,
-} from '../../domain/user';
+import { Email, UserAggregate, UserError, UserRepository } from '../../domain/user';
 import { UserModel } from '../models';
 import { UserSerializer } from '../serializers';
 
@@ -18,17 +11,17 @@ const UserDB: UserModel[] = [];
 export class InMemoryUserRepository implements UserRepository {
     constructor(@inject(Symbols.UserSerializer) private userSerializer: UserSerializer) {}
 
-    async isEmailAvailable(email: Email): Promise<Result<UserExceptions, void>> {
+    async isEmailAvailable(email: Email): Promise<Result<UserError, void>> {
         if (UserDB.find(user => user.email === email.value) !== undefined)
-            return Result.Exception(EmailAlreadyExistException.create());
+            return Result.Error(UserError.EmailAlreadyExistError());
 
         return Result.Success();
     }
 
-    async create(props: UserAggregate): Promise<Result<UserExceptions, void>> {
+    async create(props: UserAggregate): Promise<Result<UserError, void>> {
         const isEmailAvailable = await this.isEmailAvailable(props.props.email);
 
-        if (isEmailAvailable.isException) return Result.Exception(isEmailAvailable.getExceptionValue());
+        if (isEmailAvailable.isError) return Result.Error(isEmailAvailable.getError());
 
         UserDB.push({
             ...this.userSerializer.fromEntityToDTO(props),
@@ -42,39 +35,39 @@ export class InMemoryUserRepository implements UserRepository {
         return Result.Success();
     }
 
-    async readById(id: UniqueEntityID): Promise<Result<UserExceptions, UserAggregate>> {
+    async readById(id: UniqueEntityID): Promise<Result<UserError, UserAggregate>> {
         const foundUser = UserDB.find(user => user.id === id.toString() && user.status);
 
-        if (!foundUser) return Result.Exception(NotFoundIdException.create());
+        if (!foundUser) return Result.Error(UserError.UnExpectedError());
 
         const user = this.userSerializer.fromModelToEntity(foundUser);
 
-        if (user.isException) return Result.Exception(user.getExceptionValue());
+        if (user.isError) return Result.Error(user.getError());
 
-        return Result.Success(user.getSuccessValue());
+        return Result.Success(user.getSuccess());
     }
 
-    async readAll(paginate: Paginate): Promise<Result<UserExceptions, Page<UserAggregate>>> {
+    async readAll(paginate: Paginate): Promise<Result<UserError, Page<UserAggregate>>> {
         const data = UserDB.map(user => this.userSerializer.fromModelToEntity(user));
 
         const foundException = Result.Combine(data);
 
-        if (foundException.isException) return Result.Exception(foundException.getExceptionValue());
+        if (foundException.isError) return Result.Error(foundException.getError());
 
         const page: Page<UserAggregate> = {
             page: paginate.page,
             pp: paginate.pp,
             total: 10,
-            data: data.map(user => user.getSuccessValue()),
+            data: data.map(user => user.getSuccess()),
         };
 
         return Result.Success(page);
     }
 
-    async updateById(id: UniqueEntityID, props: UserAggregate): Promise<Result<UserExceptions, void>> {
+    async updateById(id: UniqueEntityID, props: UserAggregate): Promise<Result<UserError, void>> {
         const foundedIndex = UserDB.findIndex(user => user.id === id.toString());
 
-        if (foundedIndex === -1) return Result.Exception(NotFoundIdException.create());
+        if (foundedIndex === -1) return Result.Error(UserError.NotFoundIdError());
 
         UserDB[foundedIndex] = {
             ...UserDB[foundedIndex],
@@ -86,10 +79,10 @@ export class InMemoryUserRepository implements UserRepository {
         return Result.Success();
     }
 
-    async deleteById(id: UniqueEntityID): Promise<Result<UserExceptions, void>> {
+    async deleteById(id: UniqueEntityID): Promise<Result<UserError, void>> {
         const foundedIndex = UserDB.findIndex(user => user.id === id.toString());
 
-        if (foundedIndex === -1) return Result.Exception(NotFoundIdException.create(id));
+        if (foundedIndex === -1) return Result.Error(UserError.NotFoundIdError());
 
         UserDB[foundedIndex] = {
             ...UserDB[foundedIndex],

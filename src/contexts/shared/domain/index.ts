@@ -9,4 +9,3 @@ export * from './AggregateRoot';
 export * from './Result';
 export * from './Repository';
 export * from './DomainError';
-export * from './DomainErrors';

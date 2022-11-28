@@ -2,14 +2,14 @@ import { inject, injectable } from 'inversify';
 import { Symbols } from '../../../../env';
 import { UseCase } from '../../../shared/application';
 import { DomainEvents, Result, UniqueEntityID } from '../../../shared/domain';
-import { Email, Password, UserAggregate, UserExceptions, UserRepository } from '../../domain/user';
+import { Email, Password, UserAggregate, UserError, UserRepository } from '../../domain/user';
 
 export type CreateUserRequest = {
     email: string;
     password: string;
 };
 
-type RESPONSE = Result<UserExceptions, void>;
+type RESPONSE = Result<UserError, void>;
 
 @injectable()
 export class CreateUserUseCase implements UseCase<CreateUserRequest, RESPONSE> {
@@ -18,28 +18,28 @@ export class CreateUserUseCase implements UseCase<CreateUserRequest, RESPONSE> {
     async execute(request: CreateUserRequest): Promise<RESPONSE> {
         const email = Email.create({ email: request.email });
 
-        if (email.isException) return Result.Exception(email.getExceptionValue());
+        if (email.isError) return Result.Error(email.getError());
 
         const password = Password.create({ password: request.password });
 
-        if (password.isException) return Result.Exception(password.getExceptionValue());
+        if (password.isError) return Result.Error(password.getError());
 
         const user = UserAggregate.createToSave(
             {
-                email: email.getSuccessValue(),
-                password: password.getSuccessValue(),
+                email: email.getSuccess(),
+                password: password.getSuccess(),
             },
             new UniqueEntityID()
         );
 
-        if (user.isException) return Result.Exception(user.getExceptionValue());
+        if (user.isError) return Result.Error(user.getError());
 
-        const stored = await this.userRepository.create(user.getSuccessValue());
+        const stored = await this.userRepository.create(user.getSuccess());
 
-        if (stored.isException) {
-            DomainEvents.removeAggregateFromMarkedDispatchList(user.getSuccessValue());
+        if (stored.isError) {
+            DomainEvents.removeAggregateFromMarkedDispatchList(user.getSuccess());
 
-            return Result.Exception(stored.getExceptionValue());
+            return Result.Error(stored.getError());
         }
 
         return Result.Success();

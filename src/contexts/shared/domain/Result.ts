@@ -1,46 +1,47 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export class Result<EXCEPTION, SUCCESS> {
-    public isException: boolean;
-    private _exception?: EXCEPTION;
+export class Result<ERROR, SUCCESS> {
+    public isError: boolean;
+    private _error?: ERROR;
 
     public isSuccess: boolean;
     private _success?: SUCCESS;
 
-    public constructor(isSuccess: boolean, exception?: EXCEPTION, success?: SUCCESS) {
-        if (isSuccess && exception)
-            throw new Error('InvalidOperation: A result cannot be successful and contain an exception');
+    private constructor(isOK: boolean, error?: ERROR, success?: SUCCESS) {
+        if (isOK && error) throw new Error('InvalidOperation: A result cannot be successful and contain an error');
 
-        if (!isSuccess && !exception)
-            throw new Error('InvalidOperation: A failing result needs to contain an exception');
+        if (!isOK && !error) throw new Error('InvalidOperation: A failing result needs to contain an error');
 
-        this.isException = !isSuccess;
-        this.isSuccess = isSuccess;
-        this._exception = exception;
+        this.isError = !isOK;
+        this._error = error;
+
+        this.isSuccess = isOK;
         this._success = success;
 
         Object.freeze(this);
     }
 
-    public getSuccessValue(): SUCCESS {
-        if (!this.isSuccess) throw new Error("Can't get the value of an error result. Use 'errorValue' instead.");
+    public getSuccess(): SUCCESS {
+        if (!this.isSuccess) throw new Error("InvalidOperation: Can't get a success value");
 
         return this._success as SUCCESS;
     }
 
-    public getExceptionValue(): EXCEPTION {
-        return this._exception as EXCEPTION;
+    public getError(): ERROR {
+        if (!this.isError) throw new Error("InvalidOperation: Can't get an error value");
+
+        return this._error as ERROR;
     }
 
-    public static Success<EXCEPTION, SUCCESS>(success?: SUCCESS): Result<EXCEPTION, SUCCESS> {
-        return new Result<EXCEPTION, SUCCESS>(true, undefined, success);
+    public static Success<ERROR, SUCCESS>(success?: SUCCESS): Result<ERROR, SUCCESS> {
+        return new Result<ERROR, SUCCESS>(true, undefined, success);
     }
 
-    public static Exception<EXCEPTION, SUCCESS>(exception: EXCEPTION): Result<EXCEPTION, SUCCESS> {
-        return new Result<EXCEPTION, SUCCESS>(false, exception);
+    public static Error<ERROR, SUCCESS>(exception: ERROR): Result<ERROR, SUCCESS> {
+        return new Result<ERROR, SUCCESS>(false, exception);
     }
 
-    public static Combine<EXCEPTION>(results: Result<EXCEPTION, any>[]): Result<EXCEPTION, void> {
-        const foundException = results.find(result => result.isException);
+    public static Combine<ERROR>(results: Result<ERROR, any>[]): Result<ERROR, void> {
+        const foundException = results.find(result => result.isError);
 
         if (foundException) return foundException;
 

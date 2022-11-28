@@ -1,3 +1,3 @@
 /* import/export */
-export * from './CreateUser';
-export * from './GetUserList';
+export * from './CreateUser.controller';
+export * from './GetUserList.controller';

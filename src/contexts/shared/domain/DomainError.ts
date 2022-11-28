@@ -1,15 +1,27 @@
-export interface IDomainError<MESSAGE, EXCEPTION> {
-    message: MESSAGE;
-    exception: EXCEPTION;
-}
+export type KindError = 'unexpected' | 'notfound' | 'notvalid' | 'conflict';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export abstract class DomainError<MESSAGE, EXCEPTION = any> implements IDomainError<MESSAGE, EXCEPTION> {
-    message: MESSAGE;
-    exception: EXCEPTION;
+export type CommonsErrorMessage = `commons.errors.${'unexpected'}`;
 
-    protected constructor(message: MESSAGE, exception: EXCEPTION) {
+export class DomainError<MESSAGES, ARGS = unknown> {
+    kind: KindError;
+    message: MESSAGES;
+    args?: ARGS;
+
+    protected constructor(kind: KindError, message: MESSAGES, args?: ARGS) {
+        this.kind = kind;
         this.message = message;
-        this.exception = exception;
+        this.args = args;
+    }
+
+    protected static create<MESSAGES, ARGS = unknown>(
+        kind: KindError,
+        message: MESSAGES,
+        args?: ARGS
+    ): DomainError<MESSAGES, ARGS> {
+        return new DomainError(kind, message, args);
+    }
+
+    public static UnExpectedError<ARGS = unknown>(args?: ARGS): DomainError<CommonsErrorMessage, ARGS> {
+        return this.create('unexpected', 'commons.errors.unexpected', args);
     }
 }

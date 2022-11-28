@@ -1,12 +1,12 @@
 import { inject, injectable } from 'inversify';
 import { Symbols } from '../../../../env';
 import { UseCase } from '../../../shared/application';
-import { DomainEvents, Page, Result } from '../../../shared/domain';
-import { UserAggregate, UserExceptions, UserRepository } from '../../domain/user';
+import { Page, Result } from '../../../shared/domain';
+import { UserAggregate, UserError, UserRepository } from '../../domain/user';
 
 export type GetUserListRequest = undefined;
 
-type RESPONSE = Result<UserExceptions, Page<UserAggregate>>;
+type RESPONSE = Result<UserError, Page<UserAggregate>>;
 
 @injectable()
 export class GetUserListUseCase implements UseCase<GetUserListRequest, RESPONSE> {
@@ -15,10 +15,8 @@ export class GetUserListUseCase implements UseCase<GetUserListRequest, RESPONSE>
     async execute(): Promise<RESPONSE> {
         const userList = await this.userRepository.readAll({ page: 1, pp: 10 });
 
-        if (userList.isException) return Result.Exception(userList.getExceptionValue());
+        if (userList.isError) return Result.Error(userList.getError());
 
-        console.log(DomainEvents);
-
-        return Result.Success(userList.getSuccessValue());
+        return Result.Success(userList.getSuccess());
     }
 }

@@ -1,7 +1,7 @@
 import { AggregateRoot, Result, UniqueEntityID } from '../../../shared/domain';
 import { Email } from './Email.value';
 import { Password } from './Password.value';
-import { NotValidEmailException } from './User.exceptions';
+import { UserError } from './User.error';
 import { UserCreatedEvent } from './UserCreated.event';
 
 interface UserProps {
@@ -14,7 +14,7 @@ export class UserAggregate extends AggregateRoot<UserProps> {
         super(props, id);
     }
 
-    public static create(props: UserProps, id?: UniqueEntityID): Result<NotValidEmailException, UserAggregate> {
+    public static create(props: UserProps, id?: UniqueEntityID): Result<UserError, UserAggregate> {
         return Result.Success(
             new UserAggregate(
                 {
@@ -25,13 +25,13 @@ export class UserAggregate extends AggregateRoot<UserProps> {
         );
     }
 
-    public static createToSave(props: UserProps, id?: UniqueEntityID): Result<NotValidEmailException, UserAggregate> {
+    public static createToSave(props: UserProps, id?: UniqueEntityID): Result<UserError, UserAggregate> {
         const user = this.create(props, id);
 
-        if (user.isException) return Result.Exception(user.getExceptionValue());
+        if (user.isError) return Result.Error(user.getError());
 
-        user.getSuccessValue().addDomainEvent(UserCreatedEvent.create(user.getSuccessValue().id));
+        user.getSuccess().addDomainEvent(UserCreatedEvent.create(user.getSuccess().id));
 
-        return Result.Success(user.getSuccessValue());
+        return Result.Success(user.getSuccess());
     }
 }

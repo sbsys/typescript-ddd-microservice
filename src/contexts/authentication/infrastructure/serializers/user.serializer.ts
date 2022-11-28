@@ -1,11 +1,11 @@
 import { injectable } from 'inversify';
 import { Result, UniqueEntityID } from '../../../shared/domain';
 import { Serializer } from '../../../shared/infrastructure';
-import { Email, Password, UserAggregate, UserExceptions } from '../../domain/user';
+import { Email, Password, UserAggregate, UserError } from '../../domain/user';
 import { CreateUserDTO, UserModel, UserResponse } from '../models';
 
 @injectable()
-export class UserSerializer extends Serializer<UserExceptions, UserAggregate, UserModel, CreateUserDTO, UserResponse> {
+export class UserSerializer extends Serializer<UserError, UserAggregate, UserModel, CreateUserDTO, UserResponse> {
     public fromEntityToDTO(entity: UserAggregate): CreateUserDTO {
         return {
             id: entity.id.toString(),
@@ -14,26 +14,26 @@ export class UserSerializer extends Serializer<UserExceptions, UserAggregate, Us
         };
     }
 
-    public fromModelToEntity(model: UserModel): Result<UserExceptions, UserAggregate> {
+    public fromModelToEntity(model: UserModel): Result<UserError, UserAggregate> {
         const email = Email.create({ email: model.email });
 
-        if (email.isException) return Result.Exception(email.getExceptionValue());
+        if (email.isError) return Result.Error(email.getError());
 
         const password = Password.create({ password: model.password });
 
-        if (password.isException) return Result.Exception(password.getExceptionValue());
+        if (password.isError) return Result.Error(password.getError());
 
         const user = UserAggregate.create(
             {
-                email: email.getSuccessValue(),
-                password: password.getSuccessValue(),
+                email: email.getSuccess(),
+                password: password.getSuccess(),
             },
             new UniqueEntityID(model.id)
         );
 
-        if (user.isException) return Result.Exception(user.getExceptionValue());
+        if (user.isError) return Result.Error(user.getError());
 
-        return Result.Success(user.getSuccessValue());
+        return Result.Success(user.getSuccess());
     }
 
     public fromEntityToResponse(entity: UserAggregate): UserResponse {
