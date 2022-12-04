@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify';
 import { Symbols } from '../../../../env';
 import { Controller } from '../../../shared/infrastructure';
 import { CreateUserUseCase } from '../../application/commands';
-import { UserSuccessMessage } from '../../domain/user';
+import { UserMessage } from '../../domain/user';
 
 @injectable()
 export class CreateUserController extends Controller {
@@ -21,6 +21,6 @@ export class CreateUserController extends Controller {
             return (this.errorResponse[error.kind] ?? this.internalServerError)(error.message, error.args);
         }
 
-        return this.created<UserSuccessMessage>('user.success.created');
+        return this.created<UserMessage>('user.success.created');
     }
 }

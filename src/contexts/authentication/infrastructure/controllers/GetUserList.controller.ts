@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify';
 import { Symbols } from '../../../../env';
 import { Controller } from '../../../shared/infrastructure';
 import { GetUserListUseCase } from '../../application/queries';
-import { UserSuccessMessage } from '../../domain/user';
+import { UserMessage } from '../../domain/user';
 import { UserSerializer } from '../serializers';
 
 @injectable()
@@ -27,7 +27,7 @@ export class GetUserListController extends Controller {
             return (this.errorResponse[error.kind] ?? this.internalServerError)(error.message, error.args);
         }
 
-        return this.created<UserSuccessMessage>('user.success.list', {
+        return this.created<UserMessage>('user.success.list', {
             ...result.getSuccess(),
             data: result.getSuccess().data.map(user => this.userSerializer.fromEntityToResponse(user)),
         });

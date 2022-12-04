@@ -1,12 +1,5 @@
 import { UniqueEntityID } from './UniqueEntityID';
 
-export interface IDomainEvent {
-    readonly aggregateId: UniqueEntityID;
-    readonly eventId: UniqueEntityID;
-    readonly eventName: string;
-    readonly occurredOn: Date;
-}
-
 type DomainEventProps = {
     aggregateId: UniqueEntityID;
     eventId?: UniqueEntityID;
@@ -14,7 +7,7 @@ type DomainEventProps = {
     occurredOn?: Date;
 };
 
-export abstract class DomainEvent implements IDomainEvent {
+export abstract class DomainEvent {
     static EVENT_NAME: string;
 
     readonly aggregateId: UniqueEntityID;
