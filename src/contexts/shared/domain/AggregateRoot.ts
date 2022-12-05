@@ -1,7 +1,7 @@
 import { DomainEvent } from './DomainEvent';
-import { DomainEvents } from './DomainEvents';
 import { Entity } from './Entity';
 import { Logger } from '../../../env';
+import { EventDispatcher } from './EventDispatcher';
 
 export abstract class AggregateRoot<PROPS> extends Entity<PROPS> {
     private _domainEvents: DomainEvent[] = [];
@@ -13,12 +13,16 @@ export abstract class AggregateRoot<PROPS> extends Entity<PROPS> {
     protected addDomainEvent(domainEvent: DomainEvent): void {
         this._domainEvents.push(domainEvent);
 
-        DomainEvents.markAggregateForDispatch(this);
-
         this.logDomainEventAdded(domainEvent);
     }
 
-    public clearEvents(): void {
+    public dispathEvents(): void {
+        EventDispatcher.dispatchAggregateEvents(this);
+
+        this.clearEvents();
+    }
+
+    private clearEvents(): void {
         this._domainEvents.splice(0, this._domainEvents.length);
     }
 

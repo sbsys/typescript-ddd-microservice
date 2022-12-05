@@ -1,24 +1,25 @@
 import { UniqueEntityID } from './UniqueEntityID';
 
-type DomainEventProps = {
-    aggregateId: UniqueEntityID;
+interface DomainEventProps<T> {
     eventId?: UniqueEntityID;
+    aggregateId: UniqueEntityID;
     eventName: string;
+    eventData: T;
     occurredOn?: Date;
-};
+}
 
-export abstract class DomainEvent {
-    static EVENT_NAME: string;
-
-    readonly aggregateId: UniqueEntityID;
+export abstract class DomainEvent<T = unknown> {
     readonly eventId: UniqueEntityID;
+    readonly aggregateId: UniqueEntityID;
     readonly eventName: string;
+    readonly eventData: T;
     readonly occurredOn: Date;
 
-    protected constructor({ aggregateId, eventId, eventName, occurredOn }: DomainEventProps) {
-        this.aggregateId = aggregateId;
+    protected constructor({ eventId, aggregateId, eventName, eventData, occurredOn }: DomainEventProps<T>) {
         this.eventId = eventId || new UniqueEntityID();
+        this.aggregateId = aggregateId;
         this.eventName = eventName;
+        this.eventData = eventData;
         this.occurredOn = occurredOn || new Date();
     }
 }

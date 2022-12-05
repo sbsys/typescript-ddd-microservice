@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { Symbols } from '../../../../env';
-import { Result, UniqueEntityID, Paginate, Page, DomainEvents } from '../../../shared/domain';
+import { Result, UniqueEntityID, Paginate, Page } from '../../../shared/domain';
 import { Email, UserAggregate, UserError, UserRepository } from '../../domain/user';
 import { UserModel } from '../models';
 import { UserSerializer } from '../serializers';
@@ -29,8 +29,6 @@ export class InMemoryUserRepository implements UserRepository {
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         });
-
-        DomainEvents.dispatchEventsForAggregate(props.id);
 
         return Result.Success();
     }

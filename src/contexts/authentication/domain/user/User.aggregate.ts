@@ -25,7 +25,7 @@ export class UserAggregate extends AggregateRoot<UserProps> {
         );
     }
 
-    public static createToSave(props: UserProps, id?: UniqueEntityID): Result<UserError, UserAggregate> {
+    public static createToSave(props: UserProps, id: UniqueEntityID): Result<UserError, UserAggregate> {
         const user = this.create(props, id);
 
         if (user.isError) return Result.Error(user.getError());

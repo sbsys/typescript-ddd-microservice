@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
 import { Symbols } from '../../../../env';
 import { UseCase } from '../../../shared/application';
-import { DomainEvents, Result, UniqueEntityID } from '../../../shared/domain';
+import { Result, UniqueEntityID } from '../../../shared/domain';
 import { Email, Password, UserAggregate, UserError, UserRepository } from '../../domain/user';
 
 export type CreateUserRequest = {
@@ -36,11 +36,9 @@ export class CreateUserUseCase implements UseCase<CreateUserRequest, RESPONSE> {
 
         const stored = await this.userRepository.create(user.getSuccess());
 
-        if (stored.isError) {
-            DomainEvents.removeAggregateFromMarkedDispatchList(user.getSuccess());
+        if (stored.isError) return Result.Error(stored.getError());
 
-            return Result.Error(stored.getError());
-        }
+        user.getSuccess().dispathEvents();
 
         return Result.Success();
     }

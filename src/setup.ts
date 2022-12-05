@@ -6,7 +6,7 @@ import { UserCreatedEventHandler } from './contexts/authentication/application/h
 function handlers(): void {
     const handlerList = [UserCreatedEventHandler];
 
-    handlerList.map(currentHandler => container.resolve(currentHandler).setupSubscriptions());
+    handlerList.forEach(handler => container.resolve(handler).setupSubscriptions());
 }
 
 function setup() {
